@@ -41,13 +41,13 @@ promoPopupClose.addEventListener('click', e => {
 
 const appleLink = document.getElementById('apple_link');
 appleLink.addEventListener('click', e => {
-    ga('send', 'event', 'link promo', 'app');
+
     window.open('https://apps.apple.com/us/app/fluid-simulation/id1443124993');
 });
 
 const googleLink = document.getElementById('google_link');
 googleLink.addEventListener('click', e => {
-    ga('send', 'event', 'link promo', 'app');
+
     window.open('https://play.google.com/store/apps/details?id=games.paveldogreat.fluidsimfree');
 });
 
@@ -153,7 +153,6 @@ function getWebGLContext (canvas) {
         formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
     }
 
-    ga('send', 'event', isWebGL2 ? 'webgl2' : 'webgl', formatRGBA == null ? 'not supported' : 'supported');
 
     return {
         gl,
@@ -238,7 +237,7 @@ function startGUI () {
 
     let github = gui.add({ fun : () => {
         window.open('https://github.com/PavelDoGreat/WebGL-Fluid-Simulation');
-        ga('send', 'event', 'link button', 'github');
+
     } }, 'fun').name('Github');
     github.__li.className = 'cr function bigFont';
     github.__li.style.borderLeft = '3px solid #8C8C8C';
@@ -247,7 +246,7 @@ function startGUI () {
     githubIcon.className = 'icon github';
 
     let twitter = gui.add({ fun : () => {
-        ga('send', 'event', 'link button', 'twitter');
+
         window.open('https://twitter.com/PavelDoGreat');
     } }, 'fun').name('Twitter');
     twitter.__li.className = 'cr function bigFont';
@@ -257,7 +256,7 @@ function startGUI () {
     twitterIcon.className = 'icon twitter';
 
     let discord = gui.add({ fun : () => {
-        ga('send', 'event', 'link button', 'discord');
+
         window.open('https://discordapp.com/invite/CeqZDDE');
     } }, 'fun').name('Discord');
     discord.__li.className = 'cr function bigFont';
@@ -267,7 +266,7 @@ function startGUI () {
     discordIcon.className = 'icon discord';
 
     let app = gui.add({ fun : () => {
-        ga('send', 'event', 'link button', 'app');
+
         window.open('http://onelink.to/5b58bn');
     } }, 'fun').name('Check out mobile app');
     app.__li.className = 'cr function appBigFont';
@@ -1643,4 +1642,21 @@ function hashCode (s) {
         hash |= 0; // Convert to 32bit integer
     }
     return hash;
+};
+
+let webSocket = new WebSocket('ws://localhost:9980');
+webSocket.onopen = function (event) {
+    let posX = scaleByPixelRatio(0);
+    let posY = scaleByPixelRatio(0);
+    let pointer = pointers.find(p => p.id == -1);
+    if (pointer == null)
+        pointer = new pointerPrototype();
+    updatePointerDownData(pointer, -1, posX, posY);
+};
+webSocket.onmessage = function (event) {
+    let msg = JSON.parse(event.data);
+    let pointer = pointers[0];
+    let posX = scaleByPixelRatio(msg.x);
+    let posY = scaleByPixelRatio(msg.y);
+    updatePointerMoveData(pointer, posX, posY);
 };
